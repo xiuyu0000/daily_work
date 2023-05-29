@@ -1,8 +1,5 @@
 import re
 
-# 定义正则表达式模式
-# date_pattern = r"————— (\d{4}-\d{2}-\d{2}) —————\n\n"
-# dialogue_pattern = r"(\w+ \d{2}:\d{2})\n\n(.*?)\n\n"
 
 # 从文本中提取日期和对话
 def extract_dialogues(text):
