@@ -5,24 +5,30 @@ import requests
 from bs4 import BeautifulSoup
 
 
-link_set = []
-def fetch_links(url, base_url="https://python.langchain.com"):
-    global link_set
+def fetch_links(
+    url,
+    link_selector,
+    base_url,
+    depth_limit=5,
+    current_depth=1,
+    visited=None):
+    if not visited:
+        visited = set()
+    
     response = requests.get(url)
     soup = BeautifulSoup(response.content, 'html.parser')
-    links = soup.find_all(class_='menu__link')  # Adjust selector based on actual HTML structure
+    links = soup.find_all(class_=link_selector)
     for link in links:
         href = link.get('href')
         if href and href.startswith('/docs'):
             full_url = base_url + href
-            if full_url not in link_set:
+            if full_url not in visited:
                 print(full_url)
-                link_set.append(full_url)
-                # Recursively fetch links if needed, based on certain conditions
-                # For instance, if you detect it's a section with further links (like 'cookbook/')
-                if href.endswith('/') and len(href.split('/')) > 4:
-                    time.sleep(random.randint(1, 3))  # Add appropriate delay to avoid being identified as a bot
-                    fetch_links(full_url)
+                visited.add(full_url)
+                if current_depth < depth_limit:
+                    time.sleep(random.randint(1, 3))
+                    fetch_links_dfs(full_url, link_selector, base_url, depth_limit, current_depth + 1, visited)
+    return visited
 
 
 def download_documents_as_pdf(links):
